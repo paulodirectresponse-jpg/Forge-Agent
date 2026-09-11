@@ -5,7 +5,7 @@ export {};
 declare global {
  interface Window {
   forge?: {
-   projects: { list(): Promise<Workspace[]>; open(): Promise<Workspace | null>; create(): Promise<Workspace | null>; remove(id: string): Promise<void>; addRemote(input: { name: string; remoteUrl: string; branch?: string; owner?: string; repository?: string }): Promise<Workspace> };
+   projects: { list(): Promise<Workspace[]>; open(): Promise<Workspace | null>; create(): Promise<Workspace | null>; remove(id: string): Promise<void>; addRemote(input: { name: string; remoteUrl: string; branch?: string; owner?: string; repository?: string }): Promise<Workspace>; syncRemote(id: string): Promise<Workspace | null> };
    conversations: { list(projectId: string): Promise<Conversation[]>; create(projectId: string): Promise<Conversation>; save(conversation: Conversation): Promise<Conversation> };
    run(id: string, input: string): Promise<RunResult>;
    execute(id: string, plan: RunResult['plan']): Promise<RunResult>;
