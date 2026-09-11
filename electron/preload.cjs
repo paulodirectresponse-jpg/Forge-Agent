@@ -1,0 +1,19 @@
+const { contextBridge, ipcRenderer } = require('electron');
+
+contextBridge.exposeInMainWorld('forge', {
+  projects: {
+    list: () => ipcRenderer.invoke('projects:list'),
+    open: () => ipcRenderer.invoke('projects:open'),
+    create: () => ipcRenderer.invoke('projects:create'),
+    remove: (id) => ipcRenderer.invoke('projects:remove', id),
+  },
+  run: (id, input) => ipcRenderer.invoke('agent:run', id, input),
+  read: (id, file) => ipcRenderer.invoke('agent:read', id, file),
+  checkForUpdates: () => ipcRenderer.invoke('app:update-check'),
+  oneai: {
+    get: () => ipcRenderer.invoke('oneai:get'),
+    save: (config) => ipcRenderer.invoke('oneai:save', config),
+    test: () => ipcRenderer.invoke('oneai:test'),
+  },
+});
+
