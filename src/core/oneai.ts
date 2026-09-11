@@ -15,7 +15,14 @@ export async function requestOneAI(config: OneAIConfig, input: OneAIPlanInput): 
   if (!response.ok) throw Error(`UseOneAI respondeu ${response.status}. Verifique o endereço e a chave.`);
   const payload: unknown = await response.json();
   const message = (payload as { choices?: Array<{ message?: { content?: unknown } }> }).choices?.[0]?.message?.content;
-  const parsed = typeof message === 'string' ? JSON.parse(message.replace(/^```json\s*|\s*```$/g, '')) : payload;
+  let parsed: unknown = payload;
+  if (typeof message === 'string') {
+    const cleaned = message.replace(/^```(?:json)?\s*|\s*```$/gi, '').trim();
+    try { parsed = JSON.parse(cleaned); }
+    catch {
+      return { plan: { goal: input.goal, model, estimatedTokens: 0, actions: [{ type: 'quality_gate' }] }, reasoning: message };
+    }
+  }
   const candidate = (parsed as { plan?: unknown; output?: unknown; data?: unknown }).plan ?? (parsed as { output?: unknown }).output ?? (parsed as { data?: unknown }).data ?? parsed;
   if (!candidate || typeof candidate !== 'object' || !Array.isArray((candidate as { actions?: unknown }).actions)) throw Error('A resposta da UseOneAI não contém um plano JSON válido.');
   return { plan: candidate as BrainResponse['plan'] };
