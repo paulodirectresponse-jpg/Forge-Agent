@@ -1,6 +1,9 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { randomUUID } from 'node:crypto';
+import { execFile } from 'node:child_process';
+import { promisify } from 'node:util';
+const exec = promisify(execFile);
 
 export type Workspace = { id: string; name: string; path: string; source?: 'local' | 'github' | 'hybrid'; remoteUrl?: string; branch?: string; remoteOwner?: string; remoteRepository?: string; lastCommit?: string };
 export class Workspaces {
@@ -39,6 +42,17 @@ export class Workspaces {
     const workspace: Workspace = { id: randomUUID(), name: input.name, path: '', source: 'github', remoteUrl: input.remoteUrl, branch: input.branch ?? 'main', remoteOwner: input.owner, remoteRepository: input.repository };
     await this.save([...items, workspace]);
     return workspace;
+  }
+  async syncRemote(id: string, destination: string) {
+    const item = await this.get(id);
+    if (!item.remoteUrl) throw Error('Este projeto não tem um repositório remoto configurado.');
+    const resolved = path.resolve(destination);
+    await fs.mkdir(resolved, { recursive: true });
+    if ((await fs.readdir(resolved)).length > 0) throw Error('Escolha uma pasta vazia para sincronizar o repositório.');
+    await exec('git', ['clone', '--branch', item.branch ?? 'main', '--single-branch', item.remoteUrl, resolved], { env: { ...process.env, GIT_TERMINAL_PROMPT: '0' }, timeout: 120_000 });
+    const updated: Workspace = { ...item, path: resolved, source: 'hybrid' };
+    await this.save((await this.list()).map(entry => entry.id === id ? updated : entry));
+    return updated;
   }
   async remove(id: string) { await this.save((await this.list()).filter(item => item.id !== id)); }
   async get(id: string) {
