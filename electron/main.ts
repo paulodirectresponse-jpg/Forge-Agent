@@ -25,6 +25,7 @@ app.whenReady().then(()=>{
  ipcMain.handle('projects:create',async()=>{ const choice=await dialog.showSaveDialog({title:'Escolha o nome e local da nova pasta',buttonLabel:'Criar projeto'}); if(choice.canceled||!choice.filePath)return null; await fs.mkdir(choice.filePath); return workspaces.add(choice.filePath); });
  ipcMain.handle('projects:remove',(_,id:string)=>workspaces.remove(id));
  ipcMain.handle('projects:add-remote',async(_,input:{name:string;remoteUrl:string;branch?:string;owner?:string;repository?:string})=>{if(!input?.name||!input.remoteUrl)throw Error('Informe o nome e a URL do repositório.');return workspaces.addRemote(input);});
+ ipcMain.handle('projects:sync-remote',async(_,id:string)=>{const choice=await dialog.showOpenDialog({title:'Escolha uma pasta vazia para sincronizar',properties:['openDirectory','createDirectory']});if(choice.canceled||!choice.filePaths[0])return null;return workspaces.syncRemote(id,choice.filePaths[0]);});
  ipcMain.handle('conversations:list',(_,projectId:string)=>conversations.list(projectId));
  ipcMain.handle('conversations:create',async(_,projectId:string)=>conversations.save(conversations.create(projectId)));
  ipcMain.handle('conversations:save',(_,conversation:Conversation)=>conversations.save(conversation));
