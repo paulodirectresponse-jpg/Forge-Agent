@@ -2,7 +2,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { randomUUID } from 'node:crypto';
 
-export type Workspace = { id: string; name: string; path: string };
+export type Workspace = { id: string; name: string; path: string; source?: 'local' | 'github' | 'hybrid'; remoteUrl?: string; branch?: string; remoteOwner?: string; remoteRepository?: string; lastCommit?: string };
 export class Workspaces {
   private file: string;
   constructor(file: string) { this.file = file; }
@@ -28,7 +28,15 @@ export class Workspaces {
     const items = await this.list();
     const existing = items.find(item => process.platform === 'win32' ? item.path.toLowerCase() === resolved.toLowerCase() : item.path === resolved);
     if (existing) return existing;
-    const workspace = { id: randomUUID(), name: path.basename(resolved), path: resolved };
+    const workspace: Workspace = { id: randomUUID(), name: path.basename(resolved), path: resolved, source: 'local' };
+    await this.save([...items, workspace]);
+    return workspace;
+  }
+  async addRemote(input: { name: string; remoteUrl: string; branch?: string; owner?: string; repository?: string }) {
+    const items = await this.list();
+    const existing = items.find(item => item.remoteUrl === input.remoteUrl && (item.branch ?? 'main') === (input.branch ?? 'main'));
+    if (existing) return existing;
+    const workspace: Workspace = { id: randomUUID(), name: input.name, path: '', source: 'github', remoteUrl: input.remoteUrl, branch: input.branch ?? 'main', remoteOwner: input.owner, remoteRepository: input.repository };
     await this.save([...items, workspace]);
     return workspace;
   }
@@ -39,3 +47,4 @@ export class Workspaces {
     return item;
   }
 }
+
