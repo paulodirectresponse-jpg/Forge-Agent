@@ -1,6 +1,7 @@
 import React,{useMemo,useState} from 'react';
 import {createRoot} from 'react-dom/client';
 import './styles.css';
+import './overrides.css';
 type Project={id:number;name:string;path:string;mode:'Novo'|'Existente';status:string};
 type Message={role:'user'|'agent';text:string};
 const skills=['react-quality','typescript','browser-verifier','debugging','security-review','reviewer-loop'];
