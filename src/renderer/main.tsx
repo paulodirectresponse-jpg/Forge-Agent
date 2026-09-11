@@ -14,7 +14,7 @@ function App() {
  const [busy,setBusy]=useState(false);
  const [notice,setNotice]=useState('');
  const [settings,setSettings]=useState(false);
- const [oneai,setOneai]=useState({baseUrl:'https://api.oneai.network',apiKey:'',model:'agent_plan'});
+ const [oneai,setOneai]=useState({baseUrl:'https://api.oneai.network',apiKey:'',model:'openai:gpt-5.5'});
  const [oneaiStatus,setOneaiStatus]=useState('');
  const [tab,setTab]=useState('preview');
  const project=projects.find(item=>item.id===active);
