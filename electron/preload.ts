@@ -6,6 +6,7 @@ contextBridge.exposeInMainWorld('forge', {
     create: () => ipcRenderer.invoke('projects:create'),
     remove: (id: string) => ipcRenderer.invoke('projects:remove', id),
     addRemote: (input: { name: string; remoteUrl: string; branch?: string; owner?: string; repository?: string }) => ipcRenderer.invoke('projects:add-remote', input),
+    syncRemote: (id: string) => ipcRenderer.invoke('projects:sync-remote', id),
   },
   conversations: {
     list: (projectId: string) => ipcRenderer.invoke('conversations:list', projectId),
