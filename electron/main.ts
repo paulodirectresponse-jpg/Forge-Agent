@@ -14,7 +14,7 @@ import type { OneAIConfig } from '../src/core/oneai.js';
 const __dirname=path.dirname(fileURLToPath(import.meta.url));
 let workspaces: Workspaces;
 const secrets = new SecretStore();
-function createWindow(){const win=new BrowserWindow({width:1200,height:800,webPreferences:{preload:path.join(__dirname,'preload.js'),contextIsolation:true,nodeIntegration:false}}); if(app.isPackaged) win.loadFile(path.join(__dirname,'../renderer/index.html')); else win.loadURL('http://localhost:5173');}
+function createWindow(){const preload=app.isPackaged?path.join(app.getAppPath(),'electron','preload.cjs'):path.join(__dirname,'../../electron/preload.cjs'); const win=new BrowserWindow({width:1200,height:800,webPreferences:{preload,contextIsolation:true,nodeIntegration:false}}); if(app.isPackaged) win.loadFile(path.join(__dirname,'../renderer/index.html')); else win.loadURL('http://localhost:5173');}
 app.whenReady().then(()=>{
  workspaces = new Workspaces(path.join(app.getPath('userData'), 'projects.json'));
  ipcMain.handle('projects:list',()=>workspaces.list());
