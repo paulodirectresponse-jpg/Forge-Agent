@@ -1,7 +1,10 @@
 import { app, BrowserWindow, ipcMain, dialog } from 'electron';
 import fs from 'node:fs/promises';
 import { Workspaces } from '../src/core/workspaces.js';
-import { autoUpdater } from 'electron-updater';
+import { createRequire } from 'node:module';
+const require = createRequire(import.meta.url);
+// electron-updater exposes CommonJS exports, not native ESM named exports.
+const { autoUpdater } = require('electron-updater') as typeof import('electron-updater');
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { AgentCore } from '../src/core/agent-core.js';
@@ -20,3 +23,4 @@ app.whenReady().then(()=>{
  createWindow(); if(app.isPackaged)void autoUpdater.checkForUpdatesAndNotify().catch(error=>console.error('Atualização indisponível:',String(error)));
 });
 app.on('window-all-closed',()=>{if(process.platform!=='darwin')app.quit();});
+
