@@ -8,8 +8,11 @@ const { autoUpdater } = require('electron-updater') as typeof import('electron-u
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { AgentCore } from '../src/core/agent-core.js';
+import { SecretStore } from '../src/core/secrets.js';
+import type { OneAIConfig } from '../src/core/oneai.js';
 const __dirname=path.dirname(fileURLToPath(import.meta.url));
 let workspaces: Workspaces;
+const secrets = new SecretStore();
 function createWindow(){const win=new BrowserWindow({width:1200,height:800,webPreferences:{preload:path.join(__dirname,'preload.js'),contextIsolation:true,nodeIntegration:false}}); if(app.isPackaged) win.loadFile(path.join(__dirname,'../renderer/index.html')); else win.loadURL('http://localhost:5173');}
 app.whenReady().then(()=>{
  workspaces = new Workspaces(path.join(app.getPath('userData'), 'projects.json'));
@@ -20,6 +23,9 @@ app.whenReady().then(()=>{
  ipcMain.handle('agent:run',async(_,id:string,input:string)=>{if(typeof input!=='string'||input.length>20000)throw Error('Pedido inválido.'); const project=await workspaces.get(id);return new AgentCore(project.path).run(input);});
  ipcMain.handle('agent:read',async(_,id:string,p:string)=>new AgentCore((await workspaces.get(id)).path).readFile(p));
  ipcMain.handle('app:update-check',async()=>{if(!app.isPackaged)return {status:'dev'}; try{await autoUpdater.checkForUpdates();return {status:'checked'};}catch(error){return {status:'error',message:String(error)}}});
+ ipcMain.handle('oneai:get',async()=>({baseUrl:'https://api.oneai.network',model:'agent_plan',configured:Boolean(await secrets.get('oneai'))}));
+ ipcMain.handle('oneai:save',async(_,config:OneAIConfig)=>{if(!config?.baseUrl||!config.apiKey)throw Error('Informe o endereço e a chave da UseOneAI.'); await secrets.set('oneai',JSON.stringify({baseUrl:config.baseUrl,model:config.model??'agent_plan',apiKey:config.apiKey})); return {ok:true};});
+ ipcMain.handle('oneai:test',async()=>{const raw=await secrets.get('oneai');if(!raw)return {ok:false,message:'Nenhuma chave configurada.'};const config=JSON.parse(raw) as OneAIConfig;const response=await fetch(`${config.baseUrl.replace(/\/$/,'')}/v1/models`,{headers:{'x-api-key':config.apiKey}});return response.ok?{ok:true,message:'UseOneAI conectada.'}:{ok:false,message:`UseOneAI respondeu ${response.status}.`};});
  createWindow(); if(app.isPackaged)void autoUpdater.checkForUpdatesAndNotify().catch(error=>console.error('Atualização indisponível:',String(error)));
 });
 app.on('window-all-closed',()=>{if(process.platform!=='darwin')app.quit();});
