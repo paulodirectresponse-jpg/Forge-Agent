@@ -5,6 +5,9 @@ on:
     branches: [main]
 permissions:
   contents: write
+concurrency:
+  group: forge-agent-release
+  cancel-in-progress: true
 jobs:
   release:
     runs-on: windows-latest
@@ -13,7 +16,7 @@ jobs:
       - uses: actions/setup-node@v4
         with: {node-version: 24}
       - run: npm version 0.1.${{ github.run_number }} --no-git-tag-version --allow-same-version
-      - run: npm install
+      - run: npm ci
       - run: npm test
       - run: npm run typecheck
       - run: npm run package -- --publish never
