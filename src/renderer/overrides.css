@@ -1,0 +1,2 @@
+.workspace{padding:24px 0 0}.workspace-head{padding:0 32px 20px}.split{grid-template-columns:minmax(360px,38%) minmax(520px,62%);gap:0;height:calc(100vh - 122px);min-height:620px}.chat-panel,.preview-panel{border:0;border-top:1px solid #e1e5ed;border-radius:0;min-height:620px}.chat-panel{border-right:1px solid #e1e5ed}.preview-canvas{margin:16px;background:#f8f9fc}.chat-head,.preview-head{padding:14px 18px}.messages{padding:18px}.composer textarea{height:88px}
+
