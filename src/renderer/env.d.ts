@@ -8,6 +8,8 @@ declare global {
    run(id: string, input: string): Promise<RunResult>;
    read(id: string, file: string): Promise<string>;
    checkForUpdates(): Promise<{status: string; message?: string}>;
+   oneai: { get(): Promise<{baseUrl:string;model:string;configured:boolean}>; save(config:{baseUrl:string;apiKey:string;model?:string}):Promise<{ok:boolean}>; test():Promise<{ok:boolean;message:string}> };
   };
  }
 }
+
