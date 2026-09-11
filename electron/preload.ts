@@ -9,4 +9,6 @@ contextBridge.exposeInMainWorld('forge', {
   run: (id: string, input: string) => ipcRenderer.invoke('agent:run', id, input),
   read: (id: string, file: string) => ipcRenderer.invoke('agent:read', id, file),
   checkForUpdates: () => ipcRenderer.invoke('app:update-check'),
+  oneai: { get: () => ipcRenderer.invoke('oneai:get'), save: (config: { baseUrl: string; apiKey: string; model?: string }) => ipcRenderer.invoke('oneai:save', config), test: () => ipcRenderer.invoke('oneai:test') },
 });
+
