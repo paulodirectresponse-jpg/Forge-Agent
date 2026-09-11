@@ -46,7 +46,7 @@ function App() {
    setOneaiStatus(saved.configured ? `UseOneAI conectada · ${saved.model}` : 'Configuração pendente');
   }).catch(error => setNotice(String(error)));
  }, []);
- useEffect(() => { if (active) void loadConversation(active).catch(error => setNotice(String(error))); }, [active]);
+ useEffect(() => { setPendingPlan(undefined); if (active) void loadConversation(active).catch(error => setNotice(String(error))); }, [active]);
 
  async function select(kind: 'open' | 'create') {
   if (!window.forge) { setNotice('A seleção de pastas está disponível no aplicativo desktop.'); return; }
